@@ -1,218 +1,215 @@
 import 'package:flutter/material.dart';
+import 'package:flutter38/login/login1.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter38/login/login3.dart';
-
-import 'login2.dart';
-
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  Map<String, dynamic>? user;
-  final emailController = TextEditingController();
+class _RegisterPageState extends State<RegisterPage> {
+  final formKey = GlobalKey<FormState>();
   final passwordController = TextEditingController();
-  String? emailError;
-  String? passwordError;
-  String userError = "";
+  String name = "";
+  String email = "";
+  String password = "";
+  String passwordConfirm = "";
 
-  void login() {
-    // ma'lumotlarni olamiz va tekshiramiz
-    validateEmail();
-    validatePassword();
+  void register() {
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
 
-    if (emailError == null && passwordError == null) {
-      if (user == null) {
-        userError = "Foydalanuvchi topilmadi, iltimos ro'yxatdan o'ting";
-        setState(() {});
-      } else {
-        if (user!['email'] == emailController.text &&
-            user!['password'] == passwordController.text) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (ctx) {
-                return const login3();
-              },
+      Map<String, dynamic> user = {
+        "name": name,
+        "email": email,
+        "password": password,
+        "passwordConfirm": passwordConfirm,
+      };
+
+      // Show the success dialog
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            title: Column(
+              children: [
+                Image.asset(
+                  "assets/images/image.png",
+                  width: 200,
+                  height: 200,
+                ),
+                 Text(
+                  "Your account has been created successfully",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                 SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "Congratulations! You have successfully created your account.",
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(user);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(fontSize: 30, color: Colors.white),
+                  ),
+                ),
+              ],
             ),
           );
-        } else {
-          userError = "Email yoki parol xato";
-          setState(() {});
-        }
-      }
+        },
+      );
     }
   }
 
-  void validateEmail() {
-    String email = emailController.text;
-
-    setState(() {
-      if (email.isEmpty) {
-        emailError = "Iltimos elektron pochta kiriting";
-      } else if (!email.contains("@") ||
-          !email.substring(email.indexOf("@")).contains(".")) {
-        emailError = "To'g'ri elektron pochta kiriting";
-      } else {
-        emailError = null;
-      }
-    });
+  String? validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Iltimos ism kiriting";
+    } else if (value.length < 4) {
+      return "Iltimos uzunroq ism kiriting";
+    }
+    return null;
   }
 
-  void validatePassword() {
-    String password = passwordController.text;
+  String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Iltimos elektron pochta kiriting";
+    } else if (!value.contains("@") ||
+        !value.substring(value.indexOf("@")).contains(".")) {
+      return "To'g'ri elektron pochta kiriting";
+    }
+    return null;
+  }
 
-    setState(() {
-      if (password.isEmpty) {
-        passwordError = "Iltimos parol kiriting";
-      } else {
-        passwordError = null;
-      }
-    });
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Iltimos parol kiriting";
+    } else if (value.length < 8) {
+      return "Iltimos eng kamida 8ta element kiriting";
+    }
+    return null;
+  }
+
+  String? validatePasswordConfirm(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Iltimos parolni tasdiqlang";
+    } else if (value != passwordController.text) {
+      return "Parollar mos kelmadi";
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
+      appBar: AppBar(
+        title: const Text("Ro'yxatdan o'tish"),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-            const Row(
-            children: [
-            Text(
-            "Welcome back",
-              style: TextStyle(
-                fontSize: 34,
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            ],
-                    ),
-                    const Row(
-            children: [
-              Text(
-                "Let's Login to Connect to your email",
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-                    ),
-                    const SizedBox(
-            height: 20,
-                    ),
-                    if (userError.isNotEmpty)
-                Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-            userError,
-            style: const TextStyle(color: Colors.red),
-                    ),
-                  ],
+                const Text(
+                  "RO'YXATDAN O'TISH",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 20),
-                TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.email),
-                hintText: "Elektron pochta",
-                labelText: "Elektron pochta",
-                errorText: emailError,
-                ),
-                onChanged: (value) {
-                validateEmail();
-                },
+                TextFormField(
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Ism",
+                    labelText: "Ism",
+                  ),
+                  validator: validateName,
+                  onSaved: (newValue) {
+                    if (newValue != null && newValue.isNotEmpty) {
+                      name = newValue;
+                    }
+                  },
                 ),
                 const SizedBox(height: 10),
-                TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.key_sharp),
-                  suffixIcon: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(CupertinoIcons.eye_slash),
+                TextFormField(
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Elektron pochta",
+                    labelText: "Elektron pochta",
                   ),
-                  hintText: "Parol",
-                  labelText: "Parol",
-                  errorText: passwordError,
-                ),
-                  onChanged: (value) {
-                    validatePassword();
-                  },
-                  onSubmitted: (value) {
-                    login();
+                  validator: validateEmail,
+                  onSaved: (newValue) {
+                    if (newValue != null && newValue.isNotEmpty) {
+                      email = newValue;
+                    }
                   },
                 ),
-                const SizedBox(height: 20),
-                const Row(
-                  children: [
-                    Text(
-                      "Forget your password?",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 10),
+                TextFormField(
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  controller: passwordController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Parol",
+                    labelText: "Parol",
+                  ),
+                  validator: validatePassword,
+                  onSaved: (newValue) {
+                    if (newValue != null && newValue.isNotEmpty) {
+                      password = newValue;
+                    }
+                  },
                 ),
-                const SizedBox(
-                  height: 20,
+                const SizedBox(height: 10),
+                TextFormField(
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Parol tasdiqlang",
+                    labelText: "Parol tasdiqlang",
+                  ),
+                  validator: validatePasswordConfirm,
+                  onSaved: (newValue) {
+                    if (newValue != null && newValue.isNotEmpty) {
+                      passwordConfirm = newValue;
+                    }
+                  },
+                  onFieldSubmitted: (value) {
+                    register();
+                  },
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Don't have an an account?",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        user = await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) {
-                              return const RegisterPage();
-                            },
-                          ),
-                        );
-                        print(user);
-                        if (user != null) {
-                          setState(() {});
-                        }
-                      },
-                      child: const Text(
-                        "Sign up here",
-                        style: TextStyle(color: Colors.black, fontSize: 20),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 80,
-                ),
+                const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: login,
+                    onPressed: register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
@@ -225,76 +222,14 @@ class _LoginPageState extends State<LoginPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    child: const Text("Log in"),
+                    child: const Text("RO'YXATDAN O'TISH"),
                   ),
-                ),
-
-                SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    InkWell(
-                      onTap: (){},
-                      child: Container(
-                          width: 120,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.grey,
-                          ),
-            
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.apple),
-                                  SizedBox(width: 5,),
-                                  Text("Apple",style: TextStyle(
-                                    color: Colors.black,
-                                  ),)
-                                ],
-                              ),
-                            ),
-                          )
-                      ),
-                    ),
-                    InkWell(
-                      onTap: (){},
-                      child: Container(
-                          width: 120,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.grey,
-                          ),
-            
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.apple,color: Colors.red,),
-                                  SizedBox(width: 5,),
-                                  Text("Google",style: TextStyle(
-                                    color: Colors.black,
-                                  ),)
-                                ],
-                              ),
-                            ),
-                          )
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
         ),
+      ),
     );
   }
 }
